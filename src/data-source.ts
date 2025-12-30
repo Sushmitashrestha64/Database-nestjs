@@ -1,10 +1,14 @@
+import 'reflect-metadata';
+import { config as dotenvConfig } from 'dotenv';
 import { DataSource } from 'typeorm';
 import { User } from './user/user.entity';
-import databaseConfig from './config/database.config.js';
+import databaseConfig from './config/database.config';
+
+dotenvConfig();
 
 const config = databaseConfig();
-
-export const AppDataSource = new DataSource({
+console.log('Database Config:', config);
+const AppDataSource = new DataSource({
   type: 'postgres',
   host: config.host,
   port: config.port,
@@ -12,6 +16,8 @@ export const AppDataSource = new DataSource({
   password: config.password,
   database: config.database,
   entities: [User],
-  migrations: ['src/migrations/*.ts'],
-  synchronize: false, 
+  migrations: ['src/migrations/*.ts'], 
+  synchronize: false,
 });
+
+export default AppDataSource;

@@ -30,7 +30,6 @@ import { UserModule } from './user/user.module';
         ssl: configService.get<string>('NODE_ENV') === 'production' ? { rejectUnauthorized: false } : false,
       }),
     }),
-  
    UserModule,
   ],
   controllers: [AppController],
