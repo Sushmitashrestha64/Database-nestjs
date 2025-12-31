@@ -8,6 +8,7 @@ import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdatePasswordDto } from '../dto/update-password.dto';
 @Injectable()
 export class UserService {
+    
     constructor(
     @InjectRepository(User)
     private repo: Repository<User>,) {} 
@@ -34,6 +35,17 @@ export class UserService {
     }
     return user;
   }
+  
+ async findMe(userId: string) {
+  const user = await this.repo.findOne({
+    where: { id: userId },
+    select: ['id', 'fname', 'lname', 'email', 'isActive', 'createdAt'],
+  });
+  if (!user) {
+    throw new NotFoundException('User not found');
+  }
+  return user;
+}
 
    findByEmail(email:string){
     return this.repo.findOne({where:{email}, select: ['id','email','password','isActive']});

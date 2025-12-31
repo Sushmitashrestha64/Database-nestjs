@@ -22,8 +22,5 @@ export class User {
 
     @CreateDateColumn()
     createdAt: Date;
-
-
 }
-
 export default User;
