@@ -19,20 +19,21 @@ export class UserService {
         return this.repo.save(user);
     }
 
-    findAll() { //get all users
+    findAll() { 
     return this.repo.find();
   }
 
    async findById(id: string) {
     const user = await this.repo.findOne({where:{id}});
+    console.log(user)
     if (!user) {
       throw new NotFoundException('User not found');
     }
+    
   }
 
    findByEmail(email:string){
-    return this.repo.findOne({where:{email},
-         select:['id', 'fname','lname','email','password','isActive']})
+    return this.repo.findOne({where:{email}});
   }
 
   async delete(id: string) {
@@ -67,8 +68,7 @@ export class UserService {
     return { message: 'Password updated successfully' };
  }
   
- async validatePassword(email: string, password: string
- ): Promise<boolean> {
+ async validatePassword(email: string, password: string): Promise<boolean> {
     const user = await this.findByEmail(email);
     if (!user || !user.isActive) return false;
     return bcrypt.compare(password, user.password);

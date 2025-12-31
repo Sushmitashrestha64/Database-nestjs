@@ -19,6 +19,7 @@ export class UserController {
 
     @Get(':id')
     getUserById(@Param('id') id: string) {
+        console.log('test')
         return this.userService.findById(id);
     }
 
