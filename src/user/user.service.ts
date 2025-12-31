@@ -24,16 +24,19 @@ export class UserService {
   }
 
    async findById(id: string) {
-    const user = await this.repo.findOne({where:{id}});
+    const user = await this.repo.findOne({
+      where: { id },
+      select: ['id', 'fname', 'lname', 'email', 'isActive', 'createdAt']
+    });
     console.log(user)
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    
+    return user;
   }
 
    findByEmail(email:string){
-    return this.repo.findOne({where:{email}});
+    return this.repo.findOne({where:{email}, select: ['id','email','password','isActive']});
   }
 
   async delete(id: string) {
@@ -56,8 +59,8 @@ export class UserService {
 
     const isMatch = await bcrypt.compare(
         currentPassword, 
-        user.password
-    );
+        user.password 
+      );
     if (!isMatch) {
       throw new BadRequestException('Current password is incorrect');
     }
