@@ -1,8 +1,10 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards,Request } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdatePasswordDto } from '../dto/update-password.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { User } from 'src/common/decorators/user.decorators';
+import { Auth } from 'src/common/decorators/auth.decorator';
+import { Role } from 'src/common/enum/roles.enum';
 
 @Controller('user')
 export class UserController {
@@ -13,26 +15,26 @@ export class UserController {
         return this.userService.create(createUserDto);
     }
 
-    @UseGuards(JwtAuthGuard)
+    @Auth(Role.ADMIN)
     @Get()
     getAllUsers() {
         return this.userService.findAll();
     }
 
-    @UseGuards(JwtAuthGuard)
-    @Get('me')
-    getMe(@Request() req) {
-        return req.user;
+    @Auth(Role.USER, Role.ADMIN)
+    @Get('profile')
+    getMe(@User() user) {
+        return user;
     }
 
-    @UseGuards(JwtAuthGuard)
+    @Auth()
     @Get(':id')
     getUserById(@Param('id') id: string) {
         console.log('test')
         return this.userService.findById(id);
     }
 
-    @UseGuards(JwtAuthGuard)
+    @Auth(Role.USER)
     @Patch(':id/password')
     updatePassword(
         @Param('id') id: string,
@@ -41,7 +43,7 @@ export class UserController {
         return this.userService.updatePassword(id, updatePasswordDto);
     }
 
-    @UseGuards(JwtAuthGuard)
+    @Auth(Role.ADMIN)
     @Delete(':id')
     deleteUser(@Param('id') id: string) {
         return this.userService.delete(id);

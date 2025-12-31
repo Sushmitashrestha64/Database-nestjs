@@ -2,7 +2,6 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import {  Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-
 import { User } from './user.entity';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdatePasswordDto } from '../dto/update-password.dto';
@@ -14,9 +13,9 @@ export class UserService {
     private repo: Repository<User>,) {} 
 
     async create(createUserDto: CreateUserDto){
-        const { fname, lname,email, password} = createUserDto;
+        const { fname, lname, email, password, role } = createUserDto;
         const hash = await bcrypt.hash(password, 10);
-        const user = this.repo.create({fname, lname, email, password: hash});
+        const user = this.repo.create({fname, lname, email, password: hash, role});
         return this.repo.save(user);
     }
 
@@ -25,21 +24,30 @@ export class UserService {
   }
 
    async findById(id: string) {
+    console.log('Finding user by ID:', id);
     const user = await this.repo.findOne({
       where: { id },
-      select: ['id', 'fname', 'lname', 'email', 'isActive', 'createdAt']
+      select: ['id', 'fname', 'lname', 'email', 'role', 'isActive', 'createdAt']
     });
-    console.log(user)
+    console.log('User found:', user);
+  
     if (!user) {
-      throw new NotFoundException('User not found');
+      console.log('User not found in database for ID:', id);
+      return null; // Return null instead of throwing, let JWT strategy handle it
     }
+    
+    if (!user.isActive) {
+      console.log('User is inactive:', id);
+      return null; // Return null for inactive users
+    }
+    
     return user;
   }
   
  async findMe(userId: string) {
   const user = await this.repo.findOne({
     where: { id: userId },
-    select: ['id', 'fname', 'lname', 'email', 'isActive', 'createdAt'],
+    select: ['id', 'fname', 'lname', 'email', 'role', 'isActive', 'createdAt'],
   });
   if (!user) {
     throw new NotFoundException('User not found');

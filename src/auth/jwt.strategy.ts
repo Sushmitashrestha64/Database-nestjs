@@ -15,19 +15,19 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    console.log('JWT Strategy - Validating payload:', payload);
-    const user = await this.userService.findById(payload.sub);
-    console.log('JWT Strategy - Found user:', user);
-    
-    if (!user || !user.isActive) {
-      console.log('JWT Strategy - User validation failed:', { 
-        userExists: !!user, 
-        isActive: user?.isActive 
-      });
-      throw new UnauthorizedException('Invalid token');
+    try {
+      const user = await this.userService.findById(payload.sub);
+      if (!user || !user.isActive) {
+        console.log('JWT Strategy - User validation failed:', { 
+          userExists: !!user, 
+          isActive: user?.isActive 
+        });
+        throw new UnauthorizedException('Invalid token');
+      }
+      return user;
+    } catch (error) {
+      console.log('JWT validation error:', error.message);
+      throw new UnauthorizedException('Invalid or expired token - please log in again');
     }
-    console.log('JWT Strategy - Validated User:', user);
-    
-    return user;
   }
 }
