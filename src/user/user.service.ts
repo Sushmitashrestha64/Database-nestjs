@@ -33,12 +33,12 @@ export class UserService {
   
     if (!user) {
       console.log('User not found in database for ID:', id);
-      return null; // Return null instead of throwing, let JWT strategy handle it
+      return null; 
     }
     
     if (!user.isActive) {
       console.log('User is inactive:', id);
-      return null; // Return null for inactive users
+      return null;
     }
     
     return user;
@@ -96,4 +96,14 @@ export class UserService {
     if (!user || !user.isActive) return false;
     return bcrypt.compare(password, user.password);
  } 
+
+ async updateProfile(userId: string, filePath: string){
+    const user = await this.repo.findOne({where: {id: userId}});
+    if(!user){
+        throw new NotFoundException('User not found');
+    }
+    user.profilePhoto = filePath;
+    await this.repo.save(user);
+    return user;
+ }
 }

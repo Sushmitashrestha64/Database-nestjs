@@ -10,6 +10,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { LoggerMiddleware } from './common/middleware/logger/logger.middleware';
 import { RequestIdMiddleware } from './common/middleware/request-id/request-id.middleware';
+import { S3Module } from './s3/s3.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { RequestIdMiddleware } from './common/middleware/request-id/request-id.m
     }),
    UserModule,
    AuthModule,
+   S3Module,
   ],
   controllers: [AppController],
   providers: [AppService],

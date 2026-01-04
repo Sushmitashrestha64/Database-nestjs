@@ -30,5 +30,8 @@ export class User {
 
     @CreateDateColumn()
     createdAt: Date;
+
+    @Column({ nullable: true })
+    profilePhoto: string;
 }
 export default User;

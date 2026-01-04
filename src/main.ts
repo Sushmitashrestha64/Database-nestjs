@@ -2,9 +2,15 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { TransformInterceptor } from './common/interceptors/transform/transform.interceptor';
+import { join } from 'path/win32';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+    prefix: '/uploads/',
+  });
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,              
@@ -12,12 +18,10 @@ async function bootstrap() {
       transform: true,              
       forbidUnknownValues: true,   
     }),
-  );
-  
+  ); 
   app.useGlobalInterceptors(
     new TransformInterceptor(),
   );
-  
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
