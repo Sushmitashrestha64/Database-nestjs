@@ -7,8 +7,7 @@ import { Auth } from 'src/common/decorators/auth.decorator';
 import { Role } from 'src/common/enum/roles.enum';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerConfig } from 'src/config/multer/multer.config';
-import type { Multer } from 'multer';
-import path from 'path/win32';
+
 
 @Controller('user')
 export class UserController {
@@ -54,15 +53,15 @@ export class UserController {
     }
 
     @Auth(Role.USER)
-    @Post('profile/photo')
+    @Post('profile/photo-local')
     @UseInterceptors(FileInterceptor('file', multerConfig))
-    async uploadProfilePhoto(@User('id') userId: string, @UploadedFile() file: Express.Multer.File) {
+    async uploadLocal(@User('id') userId: string, @UploadedFile() file: Express.Multer.File) {
       const filePath = `C:\\Users\\sushs\\Desktop\\database_project\\uploads\\profiles\\${file.filename}`;
-      await this.userService.updateProfile(userId, filePath);
+      await this.userService.updateProfile(userId, filePath,'local');
 
       return{
-        message: 'Profile photo uploaded successfully',
-        filePath: file.filename,
+        message: 'Profile photo uploaded successfully to local storage',
+        fileName: file.filename,
         path:filePath,
         };
     }

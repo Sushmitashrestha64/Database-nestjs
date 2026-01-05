@@ -33,5 +33,11 @@ export class User {
 
     @Column({ nullable: true })
     profilePhoto: string;
+
+    @Column({ 
+    type: 'varchar', 
+    default: 'local', 
+    nullable: true })
+    storageType: 'local' | 'cloud'; 
 }
 export default User;

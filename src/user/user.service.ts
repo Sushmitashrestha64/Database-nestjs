@@ -47,7 +47,7 @@ export class UserService {
  async findMe(userId: string) {
   const user = await this.repo.findOne({
     where: { id: userId },
-    select: ['id', 'fname', 'lname', 'email', 'role', 'isActive', 'createdAt'],
+    select: ['id', 'fname', 'lname', 'email', 'role', 'isActive', 'createdAt', 'profilePhoto', 'storageType'],
   });
   if (!user) {
     throw new NotFoundException('User not found');
@@ -56,7 +56,7 @@ export class UserService {
 }
 
    findByEmail(email:string){
-    return this.repo.findOne({where:{email}, select: ['id','email','password','isActive']});
+    return this.repo.findOne({where:{email}, select: ['id','email','password','isActive','profilePhoto','storageType']});
   }
 
   async delete(id: string) {
@@ -97,12 +97,13 @@ export class UserService {
     return bcrypt.compare(password, user.password);
  } 
 
- async updateProfile(userId: string, filePath: string){
+ async updateProfile(userId: string, filePath: string, type: 'local' | 'cloud'){
     const user = await this.repo.findOne({where: {id: userId}});
     if(!user){
         throw new NotFoundException('User not found');
     }
     user.profilePhoto = filePath;
+    user.storageType = type;
     await this.repo.save(user);
     return user;
  }

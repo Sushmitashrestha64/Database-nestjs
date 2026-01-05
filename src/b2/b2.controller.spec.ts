@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { S3Controller } from './s3.controller';
+import { S3Controller } from './b2.controller';
 
 describe('S3Controller', () => {
   let controller: S3Controller;
