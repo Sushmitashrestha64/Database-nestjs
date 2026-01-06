@@ -7,6 +7,7 @@ import { Auth } from 'src/common/decorators/auth.decorator';
 import { Role } from 'src/common/enum/roles.enum';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerConfig } from 'src/config/multer/multer.config';
+import { HttpCacheInterceptor } from 'src/common/interceptors/cache/http-cache.interceptor';
 
 
 @Controller('user')
@@ -26,6 +27,7 @@ export class UserController {
 
     @Auth(Role.USER, Role.ADMIN)
     @Get('profile')
+    @UseInterceptors(HttpCacheInterceptor)
     getMe(@User() user) {
         return user;
     }
@@ -33,7 +35,6 @@ export class UserController {
     // @Auth()
     @Get(':id')
     getUserById(@Param('id') id: string) {
-        console.log('test')
         return this.userService.findById(id);
     }
 

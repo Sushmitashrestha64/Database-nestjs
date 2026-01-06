@@ -1,7 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {  Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 import { User } from './user.entity';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdatePasswordDto } from '../dto/update-password.dto';
@@ -10,7 +12,9 @@ export class UserService {
     
     constructor(
     @InjectRepository(User)
-    private repo: Repository<User>,) {} 
+    private repo: Repository<User>,
+    @Inject(CACHE_MANAGER) private cache: Cache,
+    ) {} 
 
     async create(createUserDto: CreateUserDto){
         const { fname, lname, email, password, role } = createUserDto;
@@ -19,12 +23,30 @@ export class UserService {
         return this.repo.save(user);
     }
 
-    findAll() { 
-    return this.repo.find();
+    async findAll() {
+    const cached = await this.cache.get('users:all');
+    if (cached) {
+      console.log('CACHE HIT: Returning cached users list');
+      return cached;
+    }
+
+    console.log(' CACHE MISS: Fetching users from database');
+    const users = await this.repo.find();
+    await this.cache.set('users:all', users, 120000);
+    console.log(' CACHED: Users list stored in cache for 2 minutes');
+
+    return users;
   }
 
    async findById(id: string) {
-    console.log('Finding user by ID:', id);
+    const cacheKey = `user:${id}`;
+    const cached = await this.cache.get<User>(cacheKey);
+    if (cached) {
+      console.log(` CACHE HIT: Returning cached user for ID: ${id}`);
+      return cached;
+    }
+
+    console.log(`CACHE MISS: Finding user by ID from database: ${id}`);
     const user = await this.repo.findOne({
       where: { id },
       select: ['id', 'fname', 'lname', 'email', 'role', 'isActive', 'createdAt']
@@ -41,6 +63,8 @@ export class UserService {
       return null;
     }
     
+    await this.cache.set(cacheKey, user, 60000);
+    console.log(`CACHED: User ${id} stored in cache for 1 minute`);
     return user;
   }
   
@@ -64,6 +88,10 @@ export class UserService {
     if (result.affected === 0) {
         throw new NotFoundException('User not found');
     }
+    
+    await this.cache.del(`user:${id}`);
+    await this.cache.del('users:all');
+    
     return{message: 'User deleted successfully' };
   }
   
@@ -88,6 +116,8 @@ export class UserService {
     const hash = await bcrypt.hash(newPassword, 10);
     user.password = hash;
     await this.repo.save(user);
+    await this.cache.del(`user:${id}`);
+    await this.cache.del('users:all');
     return { message: 'Password updated successfully' };
  }
   
@@ -105,6 +135,10 @@ export class UserService {
     user.profilePhoto = filePath;
     user.storageType = type;
     await this.repo.save(user);
+    
+    await this.cache.del(`user:${userId}`);
+    await this.cache.del('users:all');
+    
     return user;
  }
 }
