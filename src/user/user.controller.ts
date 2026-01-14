@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, UploadedFile, UseInterceptors} from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto } from '../dto/create-user.dto';
-import { UpdatePasswordDto } from '../dto/update-password.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 import { User } from 'src/common/decorators/user.decorators';
 import { Auth } from 'src/common/decorators/auth.decorator';
 import { Role } from 'src/common/enum/roles.enum';

@@ -62,7 +62,6 @@ export class AppModule implements NestModule, OnModuleInit {
     this.logger.log(`Attempting to connect to Redis at ${redisHost}:${redisPort}...`);
     
     try {
-      // Check the actual store being used
       const stores: any = this.cache.stores || [];
       const store = stores[0];
       const storeType = store?.constructor?.name || 'Unknown';

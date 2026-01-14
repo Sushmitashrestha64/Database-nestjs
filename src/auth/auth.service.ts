@@ -17,19 +17,16 @@ export class AuthService {
         if (!isValid) {
             throw new UnauthorizedException('Invalid input');
         }
-        
-        // Check cache for user data
         const cacheKey = `auth:user:${email}`;
         let user = await this.cache.get<any>(cacheKey);
         
         if (user) {
-            console.log(`✅ CACHE HIT: User data for ${email}`);
+            console.log(`CACHE HIT: User data for ${email}`);
         } else {
-            console.log(`❌ CACHE MISS: Fetching user data for ${email}`);
+            console.log(` CACHE MISS: Fetching user data for ${email}`);
             user = await this.userService.findByEmail(email);
-            // Cache user data for 5 minutes
             await this.cache.set(cacheKey, user, 300000);
-            console.log(`💾 CACHED: User ${email} stored for 5 minutes`);
+            console.log(` CACHED: User ${email} stored for 5 minutes`);
         }
         
         const payload = {
@@ -42,7 +39,7 @@ export class AuthService {
         
         // Cache the token for session tracking (optional)
         const tokenCacheKey = `auth:token:${user.id}`;
-        await this.cache.set(tokenCacheKey, token, 86400000); // 24 hours
+        await this.cache.set(tokenCacheKey, token, 86400000); 
         console.log(`🔐 Token cached for user ${user.id}`);
         
         return { 

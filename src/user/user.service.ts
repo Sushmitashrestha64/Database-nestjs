@@ -5,8 +5,8 @@ import * as bcrypt from 'bcrypt';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { User } from './user.entity';
-import { CreateUserDto } from '../dto/create-user.dto';
-import { UpdatePasswordDto } from '../dto/update-password.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 @Injectable()
 export class UserService {
     
